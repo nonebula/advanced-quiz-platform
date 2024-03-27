@@ -7,20 +7,56 @@ import {
   SimpleGrid,
 } from "@chakra-ui/react";
 import { QuizItem } from "../types/quiz-type";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import Lottie from "lottie-react";
+import validAnim from "../assets/lottie/valid.json";
+import invalidAnim from "../assets/lottie/invalid.json";
 export function PlayQuiz(props: { quiz: QuizItem[] }) {
   const [currentQuizItemIndex, setCurrentQuizItemIndex] = useState<number>(0);
   const currentQuizItem: QuizItem = props.quiz[currentQuizItemIndex];
-  const availableAnswers: string[] = [
-    currentQuizItem.correct_answer,
-    ...currentQuizItem.incorrect_answers,
-  ];
+
+  const [availableAnswers, setAvailableAnswers] = useState<string[]>([]);
+
+  const [answer, setAnswer] = useState<string>();
+  const [questionStatus, setQuestionStatus] = useState<
+    "valid" | "invalid" | "unanswered"
+  >("unanswered");
+
+  useEffect(() => {
+    setAvailableAnswers(
+      [
+        currentQuizItem.correct_answer,
+        ...currentQuizItem.incorrect_answers,
+      ].sort(() => Math.random() - 0.5)
+    );
+  }, [currentQuizItemIndex]);
+
+  useEffect(() => {
+    if (answer) {
+      isValidAnswer(answer);
+      setQuestionStatus("valid");
+    } else {
+      setQuestionStatus("invalid");
+    }
+  }, [answer]);
+
+  const isValidAnswer = (answer: string): boolean => {
+    return answer === currentQuizItem.correct_answer;
+  };
 
   const radioList = availableAnswers.map((availableAnswer: string) => {
     return (
       <Radio key={availableAnswer} value={availableAnswer}>
-        <Text dangerouslySetInnerHTML={{ __html: availableAnswer }}></Text>
+        <Text
+          color={
+            questionStatus === "unanswered"
+              ? "black"
+              : isValidAnswer(availableAnswer)
+              ? "green.400"
+              : "red.400"
+          }
+          dangerouslySetInnerHTML={{ __html: availableAnswer }}
+        ></Text>
       </Radio>
     );
   });
@@ -33,13 +69,28 @@ export function PlayQuiz(props: { quiz: QuizItem[] }) {
         dangerouslySetInnerHTML={{ __html: currentQuizItem.question }}
       />
       <RadioGroup
-        value={""}
-        onChange={() => setCurrentQuizItemIndex(currentQuizItemIndex + 1)}
+        value={answer}
+        onChange={questionStatus === "unanswered" ? setAnswer : undefined}
       >
         <SimpleGrid columns={2} spacing={4}>
           {radioList}
         </SimpleGrid>
       </RadioGroup>
+      <Lottie
+        loop={false}
+        style={{ marginTop: 100, height: 150 }}
+        animationData={
+          questionStatus === "unanswered"
+            ? null
+            : questionStatus === "valid"
+            ? validAnim
+            : invalidAnim
+        }
+        onComplete={() => {
+          setQuestionStatus("unanswered");
+          setCurrentQuizItemIndex(currentQuizItemIndex + 1);
+        }}
+      />
     </Flex>
   );
 }
