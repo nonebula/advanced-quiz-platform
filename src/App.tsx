@@ -8,11 +8,13 @@ import {
   FetchQuizParams,
   QuizCategory,
   QuizDifficulty,
+  QuizItem,
   QuizType,
 } from "./types/quiz-type.tsx";
 import { SetQuestionCategory } from "./features/SetQuestionCategory.tsx";
 import { SetQuestionDifficulty } from "./features/SetQuestionDifficulty.tsx";
 import { QuizAPI } from "./api/quiz-api.tsx";
+import { PlayQuiz } from "./features/PlayQuiz.tsx";
 
 enum Step {
   SetQuestionQty,
@@ -34,6 +36,8 @@ export function App() {
   });
 
   const [categories, setCategories] = useState<QuizCategory[]>([]);
+
+  const [quiz, setQuiz] = useState<QuizItem[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -79,9 +83,29 @@ export function App() {
           />
         );
       case Step.SetQuestionDifficulty:
-        return <SetQuestionDifficulty />;
+        return (
+          <SetQuestionDifficulty
+            onClickNext={async (difficulty: QuizDifficulty) => {
+              const params = {
+                ...quizParams,
+                difficulty,
+              };
+              setQuizParams(params);
+              const quizResp = await QuizAPI.fetchQuiz(params);
+              if (quizResp.length > 0) {
+                setQuiz(quizResp);
+                setStep(Step.Play);
+              } else {
+                alert(
+                  `Sorry, we couldn't find ${params.amount} questions for this category, restarting selection now!`
+                );
+                setStep(Step.SetQuestionQty);
+              }
+            }}
+          />
+        );
       case Step.Play:
-        return <Play />;
+        return <PlayQuiz quiz={quiz} />;
       case Step.Score:
         return <Score />;
       default:
