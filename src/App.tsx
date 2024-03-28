@@ -14,7 +14,7 @@ import {
 import { SetQuestionCategory } from "./features/SetQuestionCategory.tsx";
 import { SetQuestionDifficulty } from "./features/SetQuestionDifficulty.tsx";
 import { QuizAPI } from "./api/quiz-api.tsx";
-import { PlayQuiz } from "./features/PlayQuiz.tsx";
+import { PlayQuiz } from "./features/PlayQuiz/PlayQuiz.tsx";
 
 enum Step {
   SetQuestionQty,
@@ -38,6 +38,8 @@ export function App() {
   const [categories, setCategories] = useState<QuizCategory[]>([]);
 
   const [quiz, setQuiz] = useState<QuizItem[]>([]);
+
+  const [history, setHistory] = useState<boolean[]>
 
   useEffect(() => {
     (async () => {
@@ -105,9 +107,17 @@ export function App() {
           />
         );
       case Step.Play:
-        return <PlayQuiz quiz={quiz} />;
+        return (<PlayQuiz onFinished={(history_:boolean[])={
+          setHistory(history_)
+          setStep(Step.Score)
+        }} quiz={quiz} 
+        />
+        );
       case Step.Score:
-        return <Score />;
+        return (<Score history={history} onNext={()=>{
+          setStep(Step.SetQuestionQty);
+        }} />
+        );
       default:
         return null;
     }

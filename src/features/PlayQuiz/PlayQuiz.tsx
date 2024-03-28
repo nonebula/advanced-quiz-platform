@@ -8,12 +8,16 @@ import {
   Box,
   HStack,
 } from "@chakra-ui/react";
-import { QuizItem } from "../types/quiz-type";
+import { QuizItem } from "../../types/quiz-type";
 import { useEffect, useState } from "react";
 import Lottie from "lottie-react";
-import validAnim from "../assets/lottie/valid.json";
-import invalidAnim from "../assets/lottie/invalid.json";
-export function PlayQuiz(props: { quiz: QuizItem[] }) {
+import validAnim from "../../assets/lottie/valid.json";
+import invalidAnim from "../../assets/lottie/invalid.json";
+import { Timer } from "./Timer";
+export function PlayQuiz(props: {
+  quiz: QuizItem[];
+  onFinished: (history: boolean) => void;
+}) {
   const [currentQuizItemIndex, setCurrentQuizItemIndex] = useState<number>(0);
   const currentQuizItem: QuizItem = props.quiz[currentQuizItemIndex];
 
@@ -90,9 +94,18 @@ export function PlayQuiz(props: { quiz: QuizItem[] }) {
       </Radio>
     );
   });
+  const failQuestion = () => {
+    setHistory([...history, false]);
+    setQuestionStatus("invalid");
+  };
   return (
     <Flex direction={"column"} alignItems={"center"} justify={"center"}>
       {renderProgressBar()}
+      {questionStatus === "unanswered" && (
+        <Box position={"absolute"} top={50} right={50}>
+          <Timer max={10} onFinished={failQuestion} />
+        </Box>
+      )}
       <Heading
         fontSize={"3xl"}
         mt={100}
@@ -118,8 +131,12 @@ export function PlayQuiz(props: { quiz: QuizItem[] }) {
             : invalidAnim
         }
         onComplete={() => {
-          setQuestionStatus("unanswered");
-          setCurrentQuizItemIndex(currentQuizItemIndex + 1);
+          if (currentQuizItemIndex < props.quiz.length - 1) {
+            setQuestionStatus("unanswered");
+            setCurrentQuizItemIndex(currentQuizItemIndex + 1);
+          } else {
+            props.onFinished(history);
+          }
         }}
       />
     </Flex>
