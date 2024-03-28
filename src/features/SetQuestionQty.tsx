@@ -1,4 +1,4 @@
-import { ArrowForwardIcon, ArrowRightIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
   Slider,
   SliderMark,

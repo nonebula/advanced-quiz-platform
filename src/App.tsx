@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Image } from "@chakra-ui/react";
+import { Box, Flex, Heading, Image, Spinner } from "@chakra-ui/react";
 import logoImg from "./assets/logo.png";
 import bubbleImg from "./assets/bubble.png";
 import "../global.css";
@@ -15,8 +15,10 @@ import { SetQuestionCategory } from "./features/SetQuestionCategory.tsx";
 import { SetQuestionDifficulty } from "./features/SetQuestionDifficulty.tsx";
 import { QuizAPI } from "./api/quiz-api.tsx";
 import { PlayQuiz } from "./features/PlayQuiz/PlayQuiz.tsx";
+import { Score } from "./features/Score.tsx";
 
 enum Step {
+  Loading,
   SetQuestionQty,
   SetQuestionCategory,
   SetQuestionDifficulty,
@@ -26,7 +28,7 @@ enum Step {
 
 export function App() {
   //set default state
-  const [step, setStep] = useState<Step>(Step.SetQuestionQty);
+  const [step, setStep] = useState<Step>(Step.Loading);
   const [quizParams, setQuizParams] = useState<FetchQuizParams>({
     //default values
     amount: 0,
@@ -39,7 +41,7 @@ export function App() {
 
   const [quiz, setQuiz] = useState<QuizItem[]>([]);
 
-  const [history, setHistory] = useState<boolean[]>
+  const [history, setHistory] = useState<boolean[]>;
 
   useEffect(() => {
     (async () => {
@@ -47,6 +49,7 @@ export function App() {
         { id: -1, name: "Mix it all up!" },
         ...(await QuizAPI.fetchCategories()),
       ]);
+      setStep(Step.SetQuestionQty);
     })();
   }, []);
 
@@ -58,6 +61,19 @@ export function App() {
 
   const renderScreenByStep = () => {
     switch (step) {
+      case Step.Loading:
+        return (
+          <Flex
+            top={0}
+            position={"absolute"}
+            justify={"center"}
+            alignItems={"center"}
+            minH={"100vh"}
+            width={"100%"}
+          >
+            <Spinner />
+          </Flex>
+        );
       case Step.SetQuestionQty:
         return (
           <SetQuestionQty
@@ -107,16 +123,23 @@ export function App() {
           />
         );
       case Step.Play:
-        return (<PlayQuiz onFinished={(history_:boolean[])={
-          setHistory(history_)
-          setStep(Step.Score)
-        }} quiz={quiz} 
-        />
+        return (
+          <PlayQuiz
+            onFinished={(history_: boolean[]) => {
+              setHistory(history_);
+              setStep(Step.Score);
+            }}
+            quiz={quiz}
+          />
         );
       case Step.Score:
-        return (<Score history={history} onNext={()=>{
-          setStep(Step.SetQuestionQty);
-        }} />
+        return (
+          <Score
+            history={history}
+            onNext={() => {
+              setStep(Step.SetQuestionQty);
+            }}
+          />
         );
       default:
         return null;

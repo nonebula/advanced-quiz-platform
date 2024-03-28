@@ -2,12 +2,13 @@ import { CircularProgress, CircularProgressLabel } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 let timer: NodeJS.Timer;
-export function Timer(props: { max: number; onFinished: () => void }) {
-  const [progress, setProgress] = useState<number>(props.max);
+
+export function Timer(p: { max: number; onFinished: () => void }) {
+  const [progress, setProgress] = useState<number>(p.max);
 
   useEffect(() => {
     if (progress <= 0) {
-      props.onFinished();
+      p.onFinished();
       clearInterval(timer);
     }
   }, [progress]);
@@ -20,10 +21,9 @@ export function Timer(props: { max: number; onFinished: () => void }) {
       clearInterval(timer);
     };
   }, []);
-
   return (
-    <CircularProgress max={props.max} value={progress}>
-      <CircularProgressLabel>{progress}</CircularProgressLabel>
+    <CircularProgress max={p.max} value={progress}>
+      <CircularProgressLabel>{progress}'</CircularProgressLabel>
     </CircularProgress>
   );
 }

@@ -14,9 +14,10 @@ import Lottie from "lottie-react";
 import validAnim from "../../assets/lottie/valid.json";
 import invalidAnim from "../../assets/lottie/invalid.json";
 import { Timer } from "./Timer";
+
 export function PlayQuiz(props: {
   quiz: QuizItem[];
-  onFinished: (history: boolean) => void;
+  onFinished: (history: boolean[]) => void;
 }) {
   const [currentQuizItemIndex, setCurrentQuizItemIndex] = useState<number>(0);
   const currentQuizItem: QuizItem = props.quiz[currentQuizItemIndex];
@@ -58,7 +59,7 @@ export function PlayQuiz(props: {
   const renderProgressBar = () => {
     return (
       <HStack>
-        {props.quiz.map((quizItem, i) => {
+        {props.quiz.map((_, i) => {
           return (
             <Box
               key={i}
