@@ -5,6 +5,8 @@ import {
   Radio,
   RadioGroup,
   SimpleGrid,
+  Box,
+  HStack,
 } from "@chakra-ui/react";
 import { QuizItem } from "../types/quiz-type";
 import { useEffect, useState } from "react";
@@ -16,6 +18,8 @@ export function PlayQuiz(props: { quiz: QuizItem[] }) {
   const currentQuizItem: QuizItem = props.quiz[currentQuizItemIndex];
 
   const [availableAnswers, setAvailableAnswers] = useState<string[]>([]);
+
+  const [history, setHistory] = useState<boolean[]>([]);
 
   const [answer, setAnswer] = useState<string>();
   const [questionStatus, setQuestionStatus] = useState<
@@ -33,15 +37,41 @@ export function PlayQuiz(props: { quiz: QuizItem[] }) {
 
   useEffect(() => {
     if (answer) {
-      isValidAnswer(answer);
-      setQuestionStatus("valid");
-    } else {
-      setQuestionStatus("invalid");
+      const isValid = isValidAnswer(answer);
+      if (isValid) {
+        setQuestionStatus("valid");
+      } else {
+        setQuestionStatus("invalid");
+      }
+      setHistory([...history, isValid]);
     }
   }, [answer]);
 
   const isValidAnswer = (answer: string): boolean => {
     return answer === currentQuizItem.correct_answer;
+  };
+
+  const renderProgressBar = () => {
+    return (
+      <HStack>
+        {props.quiz.map((quizItem, i) => {
+          return (
+            <Box
+              key={i}
+              h={3}
+              w={25}
+              backgroundColor={
+                i >= currentQuizItemIndex
+                  ? "gray.200"
+                  : history[i]
+                  ? "green.300"
+                  : "red:300"
+              }
+            />
+          );
+        })}
+      </HStack>
+    );
   };
 
   const radioList = availableAnswers.map((availableAnswer: string) => {
@@ -62,6 +92,7 @@ export function PlayQuiz(props: { quiz: QuizItem[] }) {
   });
   return (
     <Flex direction={"column"} alignItems={"center"} justify={"center"}>
+      {renderProgressBar()}
       <Heading
         fontSize={"3xl"}
         mt={100}
