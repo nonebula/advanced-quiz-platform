@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Image, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Image, Spinner } from "@chakra-ui/react";
 import logoImg from "./assets/logo.png";
 import bubbleImg from "./assets/bubble.png";
 import "../global.css";
@@ -41,7 +41,7 @@ export function App() {
 
   const [quiz, setQuiz] = useState<QuizItem[]>([]);
 
-  const [history, setHistory] = useState<boolean[]>;
+  const [history, setHistory] = useState<boolean[]>([]);
 
   useEffect(() => {
     (async () => {

@@ -1,7 +1,7 @@
 import { CircularProgress, CircularProgressLabel } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
-let timer: NodeJS.Timer;
+let timer: NodeJS.Timeout;
 
 export function Timer(p: { max: number; onFinished: () => void }) {
   const [progress, setProgress] = useState<number>(p.max);

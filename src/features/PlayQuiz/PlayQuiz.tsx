@@ -70,7 +70,7 @@ export function PlayQuiz(props: {
                   ? "gray.200"
                   : history[i]
                   ? "green.300"
-                  : "red:300"
+                  : "red.300"
               }
             />
           );
